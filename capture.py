@@ -219,8 +219,8 @@ def enrich_with_apollo(name, company_domain=None):
 
 # --- Exa Research ---
 
-def exa_research(name, company=None):
-    """Search Exa for web content about the contact."""
+def exa_research(name, company=None, company_domain=None):
+    """Search Exa for web content about the contact and their company."""
     if not EXA_API_KEY:
         print("No EXA_API_KEY — skipping web research")
         return []
@@ -229,8 +229,12 @@ def exa_research(name, company=None):
     if company:
         queries.append(f"{name} {company}")
         queries.append(f"{name} {company} interview OR keynote OR article OR LinkedIn")
+        queries.append(company)  # Research the company itself
     else:
         queries.append(name)
+
+    if company_domain:
+        queries.append(company_domain)  # Search by domain too
 
     all_results = []
     seen_urls = set()
@@ -614,6 +618,7 @@ def process_update(update):
             exa_results = exa_research(
                 parsed["name"],
                 parsed.get("company"),
+                parsed.get("search_company_domain"),
             )
         except Exception as e:
             print(f"Exa error (non-fatal): {e}")
